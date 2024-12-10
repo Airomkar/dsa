@@ -1,0 +1,174 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Seat {
+    int seatNumber;
+    string userID;
+    bool isBooked;
+    Seat* next;
+    Seat* prev;
+};
+
+class Cinemax {
+private:
+    Seat* head;
+
+public:
+    Cinemax() { head = nullptr; }
+    void createSeats();
+    void displaySeats();
+    void bookSeat();
+    void cancelSeat();
+    void showAvailableSeats();
+};
+
+
+void Cinemax::createSeats() {
+    for (int i = 1; i <= 70; i++) {
+        Seat* newSeat = new Seat{i, "None", false, nullptr, nullptr};
+        if (!head) {
+            head = newSeat;
+            head->next = head;
+            head->prev = head;
+        } else {
+            Seat* tail = head->prev;
+            tail->next = newSeat;
+            newSeat->prev = tail;
+            newSeat->next = head;
+            head->prev = newSeat;
+        }
+    }
+}
+
+void Cinemax::displaySeats() {
+    Seat* temp = head;
+    int count = 0;
+    cout << "\nScreen this way\n-------------------------------\n";
+    do {
+        cout << (temp->seatNumber < 10 ? "S0" : "S") << temp->seatNumber;
+        cout << (temp->isBooked ? " [B]  " : " [F]  ");
+        count++;
+        if (count % 7 == 0) cout << endl;
+        temp = temp->next;
+    } while (temp != head);
+    cout << "\n";
+}
+
+void Cinemax::bookSeat() {
+    int seatNumber;
+    string userID;
+    cout << "Enter the seat number to book (1-70): ";
+    cin >> seatNumber;
+
+    if (seatNumber < 1 || seatNumber > 70) {
+        cout << "Invalid seat number!\n";
+        return;
+    }
+
+    cout << "Enter your User ID: ";
+    cin >> userID;
+
+    Seat* temp = head;
+    do {
+        if (temp->seatNumber == seatNumber) {
+            if (temp->isBooked) {
+                cout << "Seat is already booked!\n";
+            } else {
+                temp->isBooked = true;
+                temp->userID = userID;
+                cout << "Seat " << seatNumber << " booked successfully!\n";
+            }
+            return;
+        }
+        temp = temp->next;
+    } while (temp != head);
+
+    cout << "Seat not found!\n";
+}
+
+
+void Cinemax::cancelSeat() {
+    int seatNumber;
+    string userID;
+    cout << "Enter the seat number to cancel (1-70): ";
+    cin >> seatNumber;
+
+    if (seatNumber < 1 || seatNumber > 70) {
+        cout << "Invalid seat number!\n";
+        return;
+    }
+
+    cout << "Enter your User ID: ";
+    cin >> userID;
+
+    Seat* temp = head;
+    do {
+        if (temp->seatNumber == seatNumber) {
+            if (!temp->isBooked) {
+                cout << "Seat is not booked!\n";
+            } else if (temp->userID == userID) {
+                temp->isBooked = false;
+                temp->userID = "None";
+                cout << "Booking canceled successfully for seat " << seatNumber << ".\n";
+            } else {
+                cout << "Incorrect User ID! Cannot cancel booking.\n";
+            }
+            return;
+        }
+        temp = temp->next;
+    } while (temp != head);
+
+    cout << "Seat not found!\n";
+}
+
+void Cinemax::showAvailableSeats() {
+    Seat* temp = head;
+    cout << "Available seats: ";
+    do {
+        if (!temp->isBooked) {
+            cout << temp->seatNumber << " ";
+        }
+        temp = temp->next;
+    } while (temp != head);
+    cout << "\n";
+}
+
+int main() {
+    Cinemax cinema;
+    cinema.createSeats();
+    int choice;
+
+    do {
+        cout << "\nCinemax Ticket Booking System\n";
+        cout << "1. Display Seats\n";
+        cout << "2. Book Seat\n";
+        cout << "3. Cancel Seat\n";
+        cout << "4. Show Available Seats\n";
+        cout << "0. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            cinema.displaySeats();
+            break;
+        case 2:
+            cinema.bookSeat();
+            break;
+        case 3:
+            cinema.cancelSeat();
+            break;
+        case 4:
+            cinema.showAvailableSeats();
+            break;
+        case 0:
+            cout << "Exiting the system.\n";
+            break;
+        default:
+            cout << "Invalid choice! Try again.\n";
+        }
+    } while (choice != 0);
+
+    return 0;
+}
