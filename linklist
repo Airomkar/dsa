@@ -1,0 +1,151 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Node structure
+struct Node {
+    int prn;             // Member ID
+    string name;         // Member Name
+    Node* next;          // Pointer to the next node
+};
+
+// Singly Linked List class
+class SLL {
+    Node* head; // Head of the linked list
+
+public:
+    SLL() { head = NULL; }
+
+    // Function to add a member at the beginning
+    void insertAtBeginning(int prn, string name) {
+        Node* newNode = new Node{prn, name, head};
+        head = newNode;
+    }
+
+    // Function to add a member at the end
+    void insertAtEnd(int prn, string name) {
+        Node* newNode = new Node{prn, name, NULL};
+        if (head==NULL) {
+            head = newNode;
+            return;
+        }
+        Node* temp = head;
+        while (temp==NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+    }
+
+    // Function to display the list
+    void display() {
+        if (head==NULL) {
+            cout << "Club is empty.\n";
+            return;
+        }
+        Node* temp = head;
+        while (temp!=NULL) {
+            cout << "( PRN Number :"<<temp->prn<<" , Name :"<<temp->name<<endl<<" ) ->";
+            temp = temp->next;
+        }
+        cout << "NULL\n";
+    }
+
+    // Function to delete the first member
+    void deleteAtBeginning() {
+        if (head==NULL) {
+            cout << "Club is empty.\n";
+            return;
+        }
+        Node* temp = head;
+        head = head->next;
+        cout << "Deleted Node => ( PRN Number :"<<temp->prn<<" , Name :"<<temp->name<<endl<<" )";
+        delete temp;
+    }
+
+    // Function to delete the last member
+    void deleteAtEnd() {
+        if (head==NULL) {
+            cout << "Club is empty.\n";
+            return;
+        }
+        if (!head->next) { // Only one member
+            cout << "Deleted: " << head->prn << " (" << head->name << ")\n";
+            delete head;
+            head = NULL;
+            return;
+        }
+        Node* temp = head;
+        while (temp->next->next) {
+            temp = temp->next;
+        }
+        cout << "Deleted: " << temp->next->prn << " (" << temp->next->name << ")\n";
+        delete temp->next;
+        temp->next = NULL;
+    }
+
+    // Function to count members
+    void countMembers() {
+        int count = 0;
+        Node* temp = head;
+        while (temp) {
+            count++;
+            temp = temp->next;
+        }
+        cout << "Total members: " << count << "\n";
+    }
+};
+
+int main() {
+    SLL club;
+    int choice, prn;
+    string name;
+
+    do {
+        cout << "\nMenu:\n";
+        cout << "1. Add Member at Beginning\n";
+        cout << "2. Add Member at End\n";
+        cout << "3. Display Members\n";
+        cout << "4. Delete Member at Beginning\n";
+        cout << "5. Delete Member at End\n";
+        cout << "6. Count Members\n";
+        cout << "0. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter PRN : ";
+                cin >> prn;
+                cout << "Enter Name: ";
+                cin >> name;
+                club.insertAtBeginning(prn, name);
+                break;
+            case 2:
+                cout << "Enter PRN : ";
+                cin >> prn;
+                cout << "Enter Name: ";
+                cin >> name;
+                club.insertAtEnd(prn, name);
+                break;
+            case 3:
+                club.display();
+                break;
+            case 4:
+                club.deleteAtBeginning();
+                break;
+            case 5:
+                club.deleteAtEnd();
+                break;
+            case 6:
+                club.countMembers();
+                break;
+            case 0:
+                cout << "Exiting program.\n";
+                break;
+            default:
+                cout << "Invalid choice, try again.\n";
+        }
+    } while (choice != 0);
+
+    return 0;
+}
