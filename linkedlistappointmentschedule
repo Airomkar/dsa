@@ -1,0 +1,167 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Appointment {
+    int startTime;   
+    int endTime;    
+    Appointment* next;
+};
+
+class Schedule {
+    Appointment* head;
+    int dayStart;    
+    int dayEnd;      
+    int minDuration; 
+    int maxDuration; 
+
+public:
+    Schedule(int start, int end, int minDur, int maxDur) {
+        head=NULL;
+        dayStart=start;
+        dayEnd=end;
+        minDuration=minDur;
+        maxDuration=maxDur;
+    }
+
+    void bookAppointment(int start, int duration) {
+        if (start < dayStart || start + duration > dayEnd || duration < minDuration || duration > maxDuration) {
+            cout << "Invalid appointment time or duration.\n";
+            return;
+        }
+
+        Appointment* newAppt = new Appointment{start, start + duration, NULL};
+        if (head==NULL || head->startTime > start) {
+            newAppt->next = head;
+            head = newAppt;
+        } else {
+            Appointment* temp = head;
+            while (temp->next==NULL && temp->next->startTime < start) {
+                temp = temp->next;
+            }
+            newAppt->next = temp->next;
+            temp->next = newAppt;
+        }
+
+        cout << "Appointment booked from " << formatTime(start) << " to " << formatTime(start + duration) << ".\n";
+    }
+
+    
+    void displayFreeSlots() {
+        int currentTime = dayStart;
+
+        if (head==NULL) {
+            cout << "Free slot: " << formatTime(currentTime) << " to " << formatTime(dayEnd) << ".\n";
+            return;
+        }
+
+        Appointment* temp = head;
+        while (temp) {
+            if (currentTime < temp->startTime) {
+                cout << "Free slot: " << formatTime(currentTime) << " to " << formatTime(temp->startTime) << ".\n";
+            }
+            currentTime = temp->endTime;
+            temp = temp->next;
+        }
+
+        if (currentTime < dayEnd) {
+            cout << "Free slot: " << formatTime(currentTime) << " to " << formatTime(dayEnd) << ".\n";
+        }
+    }
+
+    
+    void cancelAppointment(int start) {
+        if (head==NULL) {
+            cout << "No appointments to cancel.\n";
+            return;
+        }
+
+        if (head->startTime == start) {
+            Appointment* temp = head;
+            head = head->next;
+            cout << "Appointment from " << formatTime(temp->startTime) << " to " << formatTime(temp->endTime) << " canceled.\n";
+            delete temp;
+            return;
+        }
+
+        Appointment* temp = head;
+        while (temp->next && temp->next->startTime != start) {
+            temp = temp->next;
+        }
+
+        if (temp->next) {
+            Appointment* toDelete = temp->next;
+            temp->next = toDelete->next;
+            cout << "Appointment from " << formatTime(toDelete->startTime) << " to " << formatTime(toDelete->endTime) << " canceled.\n";
+            delete toDelete;
+        } else {
+            cout << "No appointment found at " << formatTime(start) << ".\n";
+        }
+    }
+
+    void displayAppointments() {
+        if (head==NULL) {
+            cout << "No appointments scheduled.\n";
+            return;
+        }
+
+        Appointment* temp = head;
+        cout << "Appointments:\n";
+        while (temp) {
+            cout << "- From " << formatTime(temp->startTime) << " to " << formatTime(temp->endTime) << ".\n";
+            temp = temp->next;
+        }
+    }
+
+private:
+    string formatTime(int time) {
+        int hours = time / 100;
+        int minutes = time % 100;
+        return (hours < 10 ? "0" : "") + to_string(hours) + ":" + (minutes < 10 ? "0" : "") + to_string(minutes);
+    }
+};
+
+int main() {
+    Schedule schedule(900, 1700, 30, 120); 
+
+    int choice, start, duration;
+
+    do {
+        cout << "\nMenu:\n";
+        cout << "1. Display Free Slots\n";
+        cout << "2. Book Appointment\n";
+        cout << "3. Cancel Appointment\n";
+        cout << "4. Display Appointments\n";
+        cout << "0. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                schedule.displayFreeSlots();
+                break;
+            case 2:
+                cout << "Enter start time (e.g., 930 for 9:30 AM): ";
+                cin >> start;
+                cout << "Enter duration (in minutes): ";
+                cin >> duration;
+                schedule.bookAppointment(start, duration);
+                break;
+            case 3:
+                cout << "Enter start time of appointment to cancel: ";
+                cin >> start;
+                schedule.cancelAppointment(start);
+                break;
+            case 4:
+                schedule.displayAppointments();
+                break;
+            case 0:
+                cout << "Exiting program.\n";
+                break;
+            default:
+                cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 0);
+
+    return 0;
+}
